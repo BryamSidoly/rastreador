@@ -2,11 +2,23 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Rastreamento Holistic com MediaPipe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rastreamento Holistic</title>
+
+  <!-- Manifest e tema -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" />
+  
+  <!-- Ícones -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+
   <style>
     body {
       margin: 0;
       overflow: hidden;
+      background: black;
     }
     video, canvas {
       position: absolute;
@@ -25,6 +37,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.min.js"></script>
 
   <script>
+    // Inicializa MediaPipe Holistic
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas');
     const canvasCtx = canvasElement.getContext('2d');
@@ -49,20 +62,16 @@
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-      // Espelha a imagem para frente da câmera
       canvasCtx.translate(canvasElement.width, 0);
       canvasCtx.scale(-1, 1);
 
-      // Desenha a imagem capturada
       canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-      // Desenhar pose (corpo)
       if (results.poseLandmarks) {
         drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00FF00', lineWidth: 4});
         drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FF0000', lineWidth: 2});
       }
 
-      // Desenhar mãos direita e esquerda
       if (results.rightHandLandmarks) {
         drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {color: '#00CCFF', lineWidth: 4});
         drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: '#00FFFF', lineWidth: 2});
@@ -72,7 +81,6 @@
         drawLandmarks(canvasCtx, results.leftHandLandmarks, {color: '#FF66AA', lineWidth: 2});
       }
 
-      // Desenhar rosto
       if (results.faceLandmarks) {
         drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
       }
@@ -89,6 +97,13 @@
     });
 
     camera.start();
+
+    // 🔹 Registrar Service Worker para habilitar o "Adicionar à Tela Inicial"
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker registrado com sucesso.'))
+        .catch(err => console.log('Falha ao registrar SW:', err));
+    }
   </script>
 </body>
 </html>
